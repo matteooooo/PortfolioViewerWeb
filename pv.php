@@ -41,21 +41,20 @@ function WriteCell($content,$positive,$multiplier,$decimalPlaces)
 	return $spool;
 }
 
+// Read the JSON file 
+$json = file_get_contents('currentPortfolio.json');
+// Decode the JSON file
+$json_currentportfolio = json_decode($json,true);
+
+// Read the JSON file 
+$json = file_get_contents('DailyHistForAssetClass.json');
+$json_dailyhist = json_decode($json,true);
 
 
-
-
-
-$xml = simplexml_load_file("pv.xml");
 echo "<br/>";
 echo "<h1>Portfolio Viewer</h1>";
-
-echo $xml->updateAt;
-
-$attr = "updateAt";
-//$newDateTime= date("Y-m-d H:i:s", strtotime($originalDate)); 
-
-echo "<h5>Aggiornato al " . date("Y-m-d H:i:s", strtotime($xml->attributes()->$attr)) . "</h5>";
+//echo "<h5>Aggiornato al " . date("Y-m-d H:i:s", strtotime($json_dailyhist[0]["EveluationTimeDate"])) . "</h5>";
+echo "<h5>Aggiornato al " . $json_dailyhist[0]["EveluationDateTime"] . "</h5>";
 
 echo "<br/>";
 echo "<h2>Suddivione per titolo</h2>";
@@ -83,6 +82,7 @@ echo "</tr>";
 echo "</thead>";
 echo "<tbody>";
 
+//calcolo i totali 
 $totalAmountLast = 0;
 $yesterdayTotalAmount = 0;
 $yesterdayTotalDelta = 0;
@@ -90,32 +90,28 @@ $lastWeekTotalAmount = 0;
 $lastWeekTotalDelta = 0;
 $lastMonthTotalAmount = 0;
 $lastMonthTotalDelta = 0;
-
-foreach($xml->securities->security as $item)
+for ($i=0; $i < count($json_currentportfolio); $i = $i+1)
 {
+	$totalAmountLast = $totalAmountLast + (float)$json_currentportfolio[$i]["amount"];
+	$yesterdayTotalAmount = $yesterdayTotalAmount + (float)$json_currentportfolio[$i]["yamount"];
+	$yesterdayTotalDelta = $yesterdayTotalDelta + (float)$json_currentportfolio[$i]["ydelta"];
+	$lastWeekTotalAmount = $lastWeekTotalAmount   + (float)$json_currentportfolio[$i]["wtdamount"];
+	$lastWeekTotalDelta = $lastWeekTotalDelta    + (float)$json_currentportfolio[$i]["wtddelta"];
+	$lastMonthTotalAmount = $lastMonthTotalAmount + (float)$json_currentportfolio[$i]["mtdamount"];
+	$lastMonthTotalDelta = $lastMonthTotalDelta   + (float)$json_currentportfolio[$i]["mtddelta"];
 
-	$totalAmountLast = $totalAmountLast + (float)$item->amount;
-	$yesterdayTotalAmount = $yesterdayTotalAmount + (float)$item->yesterdayamount;
-	$yesterdayTotalDelta = $yesterdayTotalDelta + (float)$item->yesterdaydelta;
-	$lastWeekTotalAmount = $lastWeekTotalAmount  + (float)$item->lastweekamount;
-	$lastWeekTotalDelta = $lastWeekTotalDelta   + (float)$item->lastweekdelta;
-	$lastMonthTotalAmount = $lastMonthTotalAmount + (float)$item->lastmonthamount;
-	$lastMonthTotalDelta = $lastMonthTotalDelta   + (float)$item->lastmonthdelta;
 
-	
 
 echo "<tr>";
 echo "<td>";
-echo (string)$item->isincode;
+echo $json_currentportfolio[$i]["isincode"];
 echo "</td>";
 echo "<td>";
-echo (string)$item->description;
+echo $json_currentportfolio[$i]["description"];
 echo "</td>";
 echo "<td>";
-echo "<a href=detail.php?ticker=". (string)$item->ticker . ">" . (string)$item->ticker . "</a>";
+echo "<a href=detail.php?ticker=". (string)$json_currentportfolio[$i]["ticker"] . ">" . (string)$json_currentportfolio[$i]["ticker"] . "</a>";
 //echo "<a href=detail.php?ticker=". (string)$item->ticker . " target='_blank'>" . (string)$item->ticker . "</a>";
-
-
 
 
 echo "</td>";
@@ -127,24 +123,24 @@ echo number_format((float)$item->pmc,3);
 echo "</td>";
 */
 echo "<td align='right' >";
-echo number_format((float)$item->yesterdayprice,3);
+echo number_format((float)$json_currentportfolio[$i]["yprice"],3);
 echo "</td>";
 
 
 
 echo "<td align='right' class='font-weight-bold' >";
-echo number_format((float)$item->marketprice,3);
+echo number_format((float)$json_currentportfolio[$i]["lastprice"],3);
 echo "</td>";
 
 
 
 
 echo "<td align='right'>";
-echo number_format((float)$item->amount,2);
+echo number_format((float)$json_currentportfolio[$i]["amount"],2);
 echo "</td>";
 
 
-if ((float)$item->yesterdaydelta >= 0) 
+if ((float)$json_currentportfolio[$i]["ydelta"] >= 0) 
 {
 echo "<td class='table-success' align='right'>";
 }
@@ -152,10 +148,10 @@ else
 {
 echo "<td class='table-danger' align='right'>";
 }
-echo number_format((float)$item->yesterdaydelta,2);
+echo number_format((float)$json_currentportfolio[$i]["ydelta"],2);
 echo "</td>";
 
-if ((float)$item->yesterdayvar >= 0) 
+if ((float)$json_currentportfolio[$i]["yvar"] >= 0) 
 {
 echo "<td class='table-success' align='right'>";
 }
@@ -163,9 +159,9 @@ else
 {
 echo "<td class='table-danger' align='right'>";
 }
-echo number_format((float)$item->yesterdayvar*100,2) . "%";
+echo number_format((float)$json_currentportfolio[$i]["yvar"]*100,2) . "%";
 echo "</td>";
-if ((float)$item->lastweekdelta >= 0) 
+if ((float)$json_currentportfolio[$i]["wtddelta"] >= 0) 
 {
 echo "<td class='table-success' align='right'>";
 }
@@ -173,10 +169,10 @@ else
 {
 echo "<td class='table-danger' align='right'>";
 }
-echo number_format((float)$item->lastweekdelta,2);
+echo number_format((float)$json_currentportfolio[$i]["wtddelta"],2);
 echo "</td>";
 
-if ((float)$item->lastweekvar >= 0) 
+if ((float)$json_currentportfolio[$i]["wtdvar"] >= 0) 
 {
 echo "<td class='table-success' align='right'>";
 }
@@ -184,9 +180,9 @@ else
 {
 echo "<td class='table-danger' align='right'>";
 }
-echo number_format((float)$item->lastweekvar*100,2) . "%";
+echo number_format((float)$json_currentportfolio[$i]["wtdvar"]*100,2) . "%";
 echo "</td>";
-if ((float)$item->lastmonthdelta >= 0) 
+if ((float)$json_currentportfolio[$i]["mtddelta"] >= 0) 
 {
 echo "<td class='table-success' align='right'>";
 }
@@ -194,9 +190,9 @@ else
 {
 echo "<td class='table-danger' align='right'>";
 }
-echo number_format((float)$item->lastmonthdelta,2);
+echo number_format((float)$json_currentportfolio[$i]["mtddelta"],2);
 echo "</td>";
-if ((float)$item->lastmonthvar >= 0) 
+if ((float)$json_currentportfolio[$i]["mtdvar"] >= 0) 
 {
 echo "<td class='table-success' align='right'>";
 }
@@ -204,7 +200,7 @@ else
 {
 echo "<td class='table-danger' align='right'>";
 }
-echo number_format((float)$item->lastmonthvar*100,2) . "%";
+echo number_format((float)$json_currentportfolio[$i]["mtdvar"]*100,2) . "%";
 echo "</td>";
 echo "</tr>";
 }
@@ -274,42 +270,40 @@ $minG = 0;
 $minR = 0;
 $minT = 0;
 $count = 1;
-foreach($xml->evaluationsBySecurityType->evaluationsBySecurityType as $item)
+
+for ($i=1; $i < count($json_dailyhist); $i = $i +1)
 {
-	if ($count == 1)
-{
-	$maxB = (float)$item->bondDelta;
-	$minB = (float)$item->bondDelta;
-	$maxE = (float)$item->equityDelta;
-	$minE = (float)$item->equityDelta;
-	$maxG = (float)$item->goldDelta;
-	$minG = (float)$item->goldDelta;
-	$maxR = (float)$item->REDelta;
-	$minR = (float)$item->REDelta;
-	$maxT = (float)$item->totalDelta;
-	$minT = (float)$item->totalDelta;
+	if ($i == 1 )
+	{
+		$maxB = (float)$json_dailyhist[$i]["BondDelta"];
+		$minB = (float)$json_dailyhist[$i]["BondDelta"];
+		$maxE = (float)$json_dailyhist[$i]["EquityDelta"];
+		$minE = (float)$json_dailyhist[$i]["EquityDelta"];
+		$maxG = (float)$json_dailyhist[$i]["GoldDelta"];
+		$minG = (float)$json_dailyhist[$i]["GoldDelta"];
+		$maxR = (float)$json_dailyhist[$i]["REDelta"];
+		$minR = (float)$json_dailyhist[$i]["REDelta"];
+		$maxT = (float)$json_dailyhist[$i]["TotalDelta"];
+		$minT = (float)$json_dailyhist[$i]["TotalDelta"];
+	}
+	else
+	{
+		$maxB = Max((float)$json_dailyhist[$i]["BondDelta"],$maxB);
+		$minB = Min((float)$json_dailyhist[$i]["BondDelta"],$minB);
 
-}
-else
-{
-	
-	$maxB = Max((float)$item->bondDelta,$maxB);
-	$minB = Min((float)$item->bondDelta,$minB);
+		$maxE = Max((float)$json_dailyhist[$i]["EquityDelta"],$maxE);
+		$minE = Min((float)$json_dailyhist[$i]["EquityDelta"],$minE);
 
-	$maxE = Max((float)$item->equityDelta,$maxE);
-	$minE = Min((float)$item->equityDelta,$minE);
+		$maxG = Max((float)$json_dailyhist[$i]["GoldDelta"],$maxG);
+		$minG = Min((float)$json_dailyhist[$i]["GoldDelta"],$minG);
 
-	$maxG = Max((float)$item->goldDelta,$maxG);
-	$minG = Min((float)$item->goldDelta,$minG);
+		$maxR = Max((float)$json_dailyhist[$i]["REDelta"],$maxR);
+		$minR = Min((float)$json_dailyhist[$i]["REDelta"],$minR);
 
-	$maxR = Max((float)$item->REDelta,$maxR);
-	$minR = Min((float)$item->REDelta,$minR);
+		$maxT = Max((float)$json_dailyhist[$i]["TotalDelta"],$maxT);
+		$minT = Min((float)$json_dailyhist[$i]["TotalDelta"],$minT);
 
-	$maxT = Max((float)$item->totalDelta,$maxT);
-	$minT = Min((float)$item->totalDelta,$minT);
-
-}
-$count = $count + 1;	
+	}
 }
 
 //MINIMI
@@ -384,79 +378,67 @@ echo "</tr>";
 
 
 $count = 1;
-foreach($xml->evaluationsBySecurityType->evaluationsBySecurityType as $item)
+for ($i=count($json_dailyhist)-1; $i > 1; $i = $i -1)
 {
 	if ($count > 0)
 	{
 	echo "<tr>";
 	echo "<td align='center'>";
-	echo $item->evaluationDateTime;
+	echo $json_dailyhist[$i]["EveluationDateTime"];
 	echo "</td>";
 	echo "<td align='right'>";
-	echo number_format((float)$item->bondAmount,2);
+	echo number_format((float)$json_dailyhist[$i]["BondAmount"],2);
 	echo "</td>";
 	
-	echo WriteCell($item->bondDelta,0,1,2);
-	echo WriteCell($item->bondVar,0,100,2);
-	echo WriteCell(stocastico($item->bondDelta,$maxB,$minB),0.5,100,0);
+	echo WriteCell($json_dailyhist[$i]["BondDelta"],0,1,2);
+	echo WriteCell($json_dailyhist[$i]["BondVar"],0,100,2);
+	echo WriteCell(stocastico($json_dailyhist[$i]["BondDelta"],$maxB,$minB),0.5,100,0);
 	echo "<td align='right'>";
-	echo number_format((float)$item->equityAmount,2);
+	echo number_format((float)$json_dailyhist[$i]["EquityAmount"],2);
 	echo "</td>";
 
-	echo WriteCell($item->equityDelta,0,1,2);
-	echo WriteCell($item->equityVar,0,100,2);
-	echo WriteCell(stocastico($item->equityDelta,$maxE,$minE),0.5,100,0);
+	echo WriteCell($json_dailyhist[$i]["EquityDelta"],0,1,2);
+	echo WriteCell($json_dailyhist[$i]["EquityVar"],0,100,2);
+	echo WriteCell(stocastico($json_dailyhist[$i]["EquityDelta"],$maxE,$minE),0.5,100,0);
 
 
 	echo "<td align='right'>";
-	echo number_format((float)$item->goldAmount,2);
+	echo number_format((float)$json_dailyhist[$i]["GoldAmount"],2);
 	echo "</td>";
 	
-	echo WriteCell($item->goldDelta,0,1,2);
-	echo WriteCell($item->goldVar,0,100,2);
-	echo WriteCell(stocastico($item->goldDelta,$maxG,$minG),0.5,100,0);
+	echo WriteCell($json_dailyhist[$i]["GoldDelta"],0,1,2);
+	echo WriteCell($json_dailyhist[$i]["GoldVar"],0,100,2);
+	echo WriteCell(stocastico($json_dailyhist[$i]["GoldDelta"],$maxG,$minG),0.5,100,0);
 
 		
 	
 	echo "<td align='right'>";
-	echo number_format((float)$item->REAmount,2);
+	echo number_format((float)$json_dailyhist[$i]["REAmount"],2);
 	echo "</td>";
 	
-	echo WriteCell($item->REDelta,0,1,2);
-	echo WriteCell($item->REVar,0,100,2);
-	echo WriteCell(stocastico($item->REDelta,$maxR,$minR),0.5,100,0);
+	echo WriteCell($json_dailyhist[$i]["REDelta"],0,1,2);
+	echo WriteCell($json_dailyhist[$i]["REVar"],0,100,2);
+	echo WriteCell(stocastico($json_dailyhist[$i]["REDelta"],$maxR,$minR),0.5,100,0);
 
 	
 	echo "<td align='right'>";
-	echo number_format((float)$item->totalAmount,2);
+	echo number_format((float)$json_dailyhist[$i]["TotalAmount"],2);
 	echo "</td>";
 	
 		
-	echo WriteCell($item->totalDelta,0,1,2);
-	echo WriteCell($item->totalVar,0,100,2);
-	echo WriteCell(stocastico($item->totalDelta,$maxT,$minT),0.5,100,0);
+	echo WriteCell($json_dailyhist[$i]["TotalDelta"],0,1,2);
+	echo WriteCell($json_dailyhist[$i]["TotalVar"],0,100,2);
+	echo WriteCell(stocastico($json_dailyhist[$i]["TotalDelta"],$maxT,$minT),0.5,100,0);
 
 
 	echo "</tr>";
 	}
 	$count = $count + 1;
 }
-
-
-
-
-
 echo "</tbody>";
 echo "</table>";
 echo "<br/><br/>";
-
-
-
 ?>
-
-
-
-
 
 
 </body>
