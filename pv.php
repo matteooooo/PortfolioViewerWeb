@@ -3,6 +3,11 @@
 <title>Portfolio Viewer</title>
 <link rel="stylesheet" type="text/css" href="pv.css" />
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script>
+
+
+
 <!--link type='text/css' href='js/CookieCompliance/stylesheet.css' rel='stylesheet'-->
 <!--#include virtual="include/meta.inc" -->
 </head>
@@ -54,7 +59,7 @@ $json_dailyhist = json_decode($json,true);
 echo "<br/>";
 echo "<h1>Portfolio Viewer</h1>";
 //echo "<h5>Aggiornato al " . date("Y-m-d H:i:s", strtotime($json_dailyhist[0]["EveluationTimeDate"])) . "</h5>";
-echo "<h5>Aggiornato al " . $json_dailyhist[0]["EveluationDateTime"] . "</h5>";
+echo "<h5>Aggiornato al " . $json_dailyhist[count( $json_dailyhist)-1]["EveluationDateTime"] . "</h5>";
 
 echo "<br/>";
 echo "<h2>Suddivione per titolo</h2>";
@@ -208,7 +213,7 @@ echo "</tr>";
 echo "<tr class='table-primary'>";
 echo "<td colspan='5' align='center'><b>Totale</b></td>";
 echo "<td align='right'>" . number_format((float)$totalAmountLast,2) . "</td>";
-echo "<td align='right'>" . number_format((float)$yesterdayTotalDelta,2) . "</td>";
+echo "<td align='right' class='font-weight-bold'>" . number_format((float)$yesterdayTotalDelta,2) . "</td>";
 $yesterdaytotalvar = ($totalAmountLast / $yesterdayTotalAmount  - 1)*100;
 echo "<td align='right'>" . number_format($yesterdaytotalvar,2) .  "%</td>";
 echo "<td align='right'>" . number_format((float)$lastWeekTotalDelta,2) . "</td>";
@@ -220,7 +225,7 @@ echo "<td align='right'>" . number_format($lastmonthtotalvar,2) .  "%</td>";
 echo "</table>";
 echo "<br>";
 
-
+echo "<div id='container' style='height: 600px' ></div>";
 
 echo "<h2>Storico giornaliero per asset class</h2>";
 echo "<table class='table-bordered center' width='85%' >";
@@ -378,7 +383,7 @@ echo "</tr>";
 
 
 $count = 1;
-for ($i=count($json_dailyhist)-1; $i > 1; $i = $i -1)
+for ($i=count($json_dailyhist)-1; $i > 0; $i = $i -1)
 {
 	if ($count > 0)
 	{
@@ -438,8 +443,80 @@ for ($i=count($json_dailyhist)-1; $i > 1; $i = $i -1)
 echo "</tbody>";
 echo "</table>";
 echo "<br/><br/>";
+
+
+
+
 ?>
 
+<script type="text/javascript">
+
+var series;
+$.ajax({
+	url: 'DailyHistForAssetClass.json',
+	async: false,
+	dataType: "text",
+	error: function()
+    {
+		alert ("Impossibile generare il grafico");
+		//window.location.replace("monitors.shtml");
+    },
+	success: function(data) 
+	{
+		var json = $.parseJSON(data);
+		series = [
+			{ name:"Bond", data: [],lineWidth: 4}, 
+			{ name:"Equity",data: [],lineWidth: 4},
+			{ name:"Gold",data: [],lineWidth: 4},
+			{ name:"Real Estate",data: [],lineWidth: 4},
+			{ name:"Total",data: [],lineWidth: 4}
+		];
+
+		
+		for (var i = 0, l = json.length; i < l; i++) {
+			x = json[i].EveluationTime
+			
+			series[0].data[i] = [x, json[i].BondDelta];
+			series[1].data[i] = [x, json[i].EquityDelta];
+			series[2].data[i] = [x, json[i].GoldDelta];
+			series[3].data[i] = [x, json[i].REDelta];
+			series[4].data[i] = [x, json[i].TotalDelta];
+		}
+	var chart = new Highcharts.Chart({
+    chart: {
+        renderTo: 'container'
+    },
+	title: {
+        text: ''
+    },
+    xAxis: {
+        type: 'datetime'
+    },
+	
+	 plotOptions: {
+        series: {
+            cursor: 'pointer',
+            className: 'popup-on-click',
+            marker: {
+                lineWidth: 1,
+				radius: 5,
+				symbol: 'circle'
+				
+            }
+        }
+    },
+
+	
+    series: series
+});
+	}
+});
+</script>
 
 </body>
+
+
+
+
+
 </html>
