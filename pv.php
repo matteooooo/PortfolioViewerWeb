@@ -465,16 +465,17 @@ $.ajax({
 	{
 		var json = $.parseJSON(data);
 		series = [
-			{ name:"Bond", data: [],lineWidth: 4}, 
-			{ name:"Equity",data: [],lineWidth: 4},
-			{ name:"Gold",data: [],lineWidth: 4},
-			{ name:"Real Estate",data: [],lineWidth: 4},
-			{ name:"Total",data: [],lineWidth: 4}
+			{ name:"Bond", data: [],lineWidth: 3,color: '#D3D3D3',symbol: 'cross'}, 
+			{ name:"Equity",data: [],lineWidth: 3, color: '#ADD8E6'},
+			{ name:"Gold",data: [],lineWidth: 3, color: '#FFD700'},
+			{ name:"Real Estate",data: [],lineWidth: 3, color: '#7FFFD4'},
+			{ name:"Total",data: [],lineWidth: 3,color: '#FF0000'}
 		];
 
 		
 		for (var i = 0, l = json.length; i < l; i++) {
 			x = json[i].EveluationTime
+			
 			
 			series[0].data[i] = [x, json[i].BondDelta];
 			series[1].data[i] = [x, json[i].EquityDelta];
@@ -490,8 +491,41 @@ $.ajax({
         text: ''
     },
     xAxis: {
-        type: 'datetime'
+        type: 'datetime',
+		tickInterval:  600 * 1000,
+		 labels: {
+            enabled: false
+        }
     },
+	
+	yAxis: [{
+        plotLines: [{
+                color: '#FF0000',
+                width: 1,
+                value: 0,
+                zIndex:2}],
+			    title: {text: 'Delta'}
+				
+				
+    }, {
+        linkedTo: 0,
+        opposite: true,
+		 title: {text: 'Delta'}
+    }],
+	
+	
+	
+	
+	/*yAxis: {
+            plotLines: [{
+                color: '#FF0000',
+                width: 1,
+                value: 0,
+                zIndex:2}]
+        },
+	*/
+	
+		
 	
 	 plotOptions: {
         series: {
