@@ -14,6 +14,31 @@
 <body>
 <?php
 
+function dateFormatter($giorno,$mese,$anno,$ore,$minuti)
+{
+	if (strlen($giorno) == 1)
+	{
+		$giorno = "0" . $giorno;
+	}
+
+	if (strlen($mese) == 1)
+	{
+		$mese = "0" . $mese;
+	}
+
+	if (strlen($ore) == 1)
+	{
+		$ore = "0" . $ore;
+	}
+
+	if (strlen($minuti) == 1)
+	{
+		$minuti = "0" . $minuti;
+	}
+	return $giorno . "/" . $mese . "/" . $anno . " " . $ore . ":" . $minuti;
+}
+
+
 function stocastico($Current,$Massimo,$Minimo)
 {
 	$Cur = (float)$Current;
@@ -56,13 +81,22 @@ $json = file_get_contents('DailyHistForAssetClass.json');
 $json_dailyhist = json_decode($json,true);
 
 
+
+
+
+
+
 echo "<br/>";
 echo "<h1>Portfolio Viewer</h1>";
 //echo "<h5>Aggiornato al " . date("Y-m-d H:i:s", strtotime($json_dailyhist[0]["EveluationTimeDate"])) . "</h5>";
-echo "<h5>Aggiornato al " . $json_dailyhist[count( $json_dailyhist)-1]["EveluationDateTime"] . "</h5>";
+$currentDate = date_parse($json_dailyhist[count($json_dailyhist)-1]["EvaluationDateTime"]);
 
-echo "<br/>";
-echo "<h2>Suddivione per titolo</h2>";
+
+
+echo "<h5>" . dateFormatter($currentDate["day"],$currentDate["month"],$currentDate["year"],$currentDate["hour"],$currentDate["minute"]) . "</h5>";
+
+//echo "<br/>";
+//echo "<h2>Suddivione per titolo</h2>";
 echo "<div>";
 echo "<table class='table-bordered center' width='85%' >";
 echo "<thead>";
@@ -382,14 +416,13 @@ echo "<td></td>";
 echo "</tr>";
 
 
-$count = 1;
-for ($i=count($json_dailyhist)-1; $i > 0; $i = $i -1)
+$count = 0;
+for ($i=count($json_dailyhist)-1; $i >= 0; $i = $i -1)
 {
-	if ($count > 0)
-	{
+
 	echo "<tr>";
 	echo "<td align='center'>";
-	echo $json_dailyhist[$i]["EveluationDateTime"];
+	echo $json_dailyhist[$i]["EvaluationDateTime"];
 	echo "</td>";
 	echo "<td align='right'>";
 	echo number_format((float)$json_dailyhist[$i]["BondAmount"],2);
@@ -437,8 +470,8 @@ for ($i=count($json_dailyhist)-1; $i > 0; $i = $i -1)
 
 
 	echo "</tr>";
-	}
-	$count = $count + 1;
+	
+	
 }
 echo "</tbody>";
 echo "</table>";
@@ -474,9 +507,7 @@ $.ajax({
 
 		
 		for (var i = 0, l = json.length; i < l; i++) {
-			x = json[i].EveluationTime
-			
-			
+			x = Date.parse(json[i].EvaluationDateTime);
 			series[0].data[i] = [x, json[i].BondDelta];
 			series[1].data[i] = [x, json[i].EquityDelta];
 			series[2].data[i] = [x, json[i].GoldDelta];
