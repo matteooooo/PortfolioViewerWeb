@@ -3,6 +3,8 @@
 <title>Detail Viewer</title>
 <link rel="stylesheet" type="text/css" href="pv.css" />
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script>
 <!--link type='text/css' href='js/CookieCompliance/stylesheet.css' rel='stylesheet'-->
 <!--#include virtual="include/meta.inc" -->
 </head>
@@ -13,6 +15,8 @@
 echo "<br/>";
 echo "<h1>". $_GET["ticker"] . "</h1>";
 echo "<br/>";
+
+echo "<div id='container' style='height: 400px' ></div>";
 // Read the JSON file 
 $json = file_get_contents('detail.json');
   
@@ -167,6 +171,118 @@ function WriteCell($content,$positive,$multiplier,$decimalPlaces)
 
 ?>
 
+<script type="text/javascript">
 
+var series;
+$.ajax({
+	url: 'detail.json',
+	async: false,
+	dataType: "text",
+	error: function()
+    {
+		alert ("Impossibile generare il grafico");
+		//window.location.replace("monitors.shtml");
+    },
+	success: function(data) 
+	{
+		var json = $.parseJSON(data);
+		series = [
+			{ name: gup("ticker"), data: [],lineWidth: 3,color: '#FF0000',symbol: 'cross'}, 
+		];
+        count=0;
+		for (var i = 0, l = json.length; i < l; i++) 
+        {
+            if (json[i].ticker == gup("ticker"))
+            {
+			    
+                x = Date.parse(json[i].cycleDateTime);
+			    if (json[i].bidprice == 0 )
+                {
+                    series[0].data[count] = [x, json[i].lastPrice];
+                }
+                else
+                {
+                    series[0].data[count] = [x, json[i].bidprice];
+                }
+                count = count+1;
+            }
+		}
+	var chart = new Highcharts.Chart({
+    chart: {
+        renderTo: 'container'
+    },
+	title: {
+        text: ''
+    },
+    xAxis: {
+        type: 'datetime',
+		tickInterval:  600 * 1000,
+		 labels: {
+            enabled: false
+        }
+    },
+	
+	yAxis: [{
+        plotLines: [{
+                color: '#FF0000',
+                width: 1,
+                value: 0,
+                zIndex:2}],
+			    title: {text: 'Delta'}
+				
+				
+    }, {
+        linkedTo: 0,
+        opposite: true,
+		 title: {text: 'Delta'}
+    }],
+	
+	
+	
+	
+	/*yAxis: {
+            plotLines: [{
+                color: '#FF0000',
+                width: 1,
+                value: 0,
+                zIndex:2}]
+        },
+	*/
+	
+		
+	
+	 plotOptions: {
+        series: {
+            cursor: 'pointer',
+            className: 'popup-on-click',
+            marker: {
+                lineWidth: 1,
+				radius: 5,
+				symbol: 'circle'
+				
+            }
+        }
+    },
+
+	
+    series: series
+});
+	}
+});
+
+function gup( name ){
+	name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");  
+	var regexS = "[\\?&]"+name+"=([^&#]*)";  
+	var regex = new RegExp( regexS );  
+	var results = regex.exec( window.location.href ); 
+	if( results == null )    return "";  
+	else    return results[1];
+    };
+
+</script>
 </body>
 </html>
+
+
+
+
