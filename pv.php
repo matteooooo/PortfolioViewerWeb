@@ -475,7 +475,9 @@ for ($i=count($json_dailyhist)-1; $i >= 0; $i = $i -1)
 }
 echo "</tbody>";
 echo "</table>";
-echo "<br/><br/>";
+echo "<br/>";
+echo "<h2>Storico giornaliero per titolo</h2>";
+echo "<div id='container2' style='height: 800px' ></div>";
 
 
 
@@ -577,6 +579,113 @@ $.ajax({
 	}
 });
 </script>
+
+<script type="text/javascript">
+
+    var series;
+    $.ajax({
+        url: 'DailyDataSecurityGraph.json',
+        async: false,
+        dataType: "text",
+        error: function()
+        {
+            alert ("Impossibile generare il grafico");
+            //window.location.replace("monitors.shtml");
+        },
+        success: function(data) 
+        {
+            var json = $.parseJSON(data);
+            series = [
+                { name:"EMI", data: [],lineWidth: 3}, 
+                { name:"ENI",data: [],lineWidth: 3},
+                { name:"EPRA",data: [],lineWidth: 3},
+                { name:"SW2CHB",data: [],lineWidth: 3},
+                { name:"SWRD",data: [],lineWidth: 3},
+                { name:"HYS",data: [],lineWidth: 3},
+                { name:"ISP",data: [],lineWidth: 3},
+                { name:"MSFT",data: [],lineWidth: 3},
+                { name:"MWRD",data: [],lineWidth: 3},
+                { name:"SGLD",data: [],lineWidth: 3},
+            ];
+               
+            for (var i = 1; i < json.length; i++) {
+                x = json[i].EveluationTime
+                series[0].data[i-1] = [x, json[i].emi];
+                series[1].data[i-1] = [x, json[i].eni];
+                series[2].data[i-1] = [x, json[i].epra];
+                series[3].data[i-1] = [x, json[i].sw2chb];
+                series[4].data[i-1] = [x, json[i].swrd];
+                series[5].data[i-1] = [x, json[i].hys];
+                series[6].data[i-1] = [x, json[i].isp];
+                series[7].data[i-1] = [x, json[i].msft];
+                series[8].data[i-1] = [x, json[i].mwrd];
+                series[9].data[i-1] = [x, json[i].sgld];
+            }
+        var chart = new Highcharts.Chart({
+        chart: {
+            renderTo: 'container2'
+        },
+        title: {
+            text: ''
+        },
+        xAxis: {
+            type: 'datetime',
+            tickInterval:  600 * 1000,
+             labels: {
+                enabled: false
+            }
+        },
+        
+        yAxis: [{
+            plotLines: [{
+                    color: '#FF0000',
+                    width: 1,
+                    value: 0,
+                    zIndex:2}],
+                    title: {text: 'Delta'}
+                    
+                    
+        }, {
+            linkedTo: 0,
+            opposite: true,
+             title: {text: 'Delta'}
+        }],
+        
+        
+        
+        
+        /*yAxis: {
+                plotLines: [{
+                    color: '#FF0000',
+                    width: 1,
+                    value: 0,
+                    zIndex:2}]
+            },
+        */
+        
+            
+        
+         plotOptions: {
+            series: {
+                cursor: 'pointer',
+                className: 'popup-on-click',
+                marker: {
+                    lineWidth: 1,
+                    radius: 5,
+                    symbol: 'circle'
+                    
+                }
+            }
+        },
+    
+        
+        series: series
+    });
+        }
+    });
+    </script>
+
+
 
 </body>
 
