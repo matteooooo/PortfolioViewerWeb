@@ -264,37 +264,8 @@ echo "<div id='container' style='height: 600px' ></div>";
 echo "<h2>Storico giornaliero per asset class</h2>";
 echo "<table class='table-bordered center' width='85%' >";
 echo "<thead>";
-echo "<tr class='table-warning text-center'>";
-echo "<th></th>";
-echo "<th colspan='4'>Bond</th>";
-echo "<th colspan='4'>Equity</th>";
-echo "<th colspan='4'>Gold</th>";
-echo "<th colspan='4'>Real Estate</th>";
-echo "<th colspan='4'>Totale</th>";
-echo "</tr>";
-echo "<tr class='table-primary text-center'>";
-echo "<th>Date-time</th>";
-echo "<th>Amount</th>";
-echo "<th>Delta</th>";
-echo "<th>Var(%)</th>";
-echo "<th>Sto(%)</th>";
-echo "<th>Amount</th>";
-echo "<th>Delta</th>";
-echo "<th>Var(%)</th>";
-echo "<th>Sto(%)</th>";
-echo "<th>Amount</th>";
-echo "<th>Delta</th>";
-echo "<th>Var(%)</th>";
-echo "<th>Sto(%)</th>";
-echo "<th>Amount</th>";
-echo "<th>Delta</th>";
-echo "<th>Var(%)</th>";
-echo "<th>Sto(%)</th>";
-echo "<th>Amount</th>";
-echo "<th>Delta</th>";
-echo "<th>Var(%)</th>";
-echo "<th>Sto(%)</th>";
-echo "</tr>";
+echo "<tr class='table-warning text-center'><th></th><th colspan='4'>Bond</th><th colspan='4'>Equity</th><th colspan='4'>Gold</th><th colspan='4'>Real Estate</th><th colspan='4'>Totale</th></tr>";
+echo "<tr class='table-primary text-center'><th>Date-time</th><th>Amount</th><th>Delta</th><th>Var(%)</th><th>Sto(%)</th><th>Amount</th><th>Delta</th><th>Var(%)</th><th>Sto(%)</th><th>Amount</th><th>Delta</th><th>Var(%)</th><th>Sto(%)</th><th>Amount</th><th>Delta</th><th>Var(%)</th><th>Sto(%)</th><th>Amount</th><th>Delta</th><th>Var(%)</th><th>Sto(%)</th></tr>";
 echo "</thead>";
 echo "<tbody>";
 $count = 1;
@@ -310,9 +281,9 @@ $minR = 0;
 $minT = 0;
 $count = 1;
 
-for ($i=1; $i < count($json_dailyhist); $i = $i +1)
+for ($i=0; $i < count($json_dailyhist); $i = $i +1)
 {
-	if ($i == 1 )
+	if ($i == 0 )
 	{
 		$maxB = (float)$json_dailyhist[$i]["BondDelta"];
 		$minB = (float)$json_dailyhist[$i]["BondDelta"];
@@ -329,19 +300,14 @@ for ($i=1; $i < count($json_dailyhist); $i = $i +1)
 	{
 		$maxB = Max((float)$json_dailyhist[$i]["BondDelta"],$maxB);
 		$minB = Min((float)$json_dailyhist[$i]["BondDelta"],$minB);
-
 		$maxE = Max((float)$json_dailyhist[$i]["EquityDelta"],$maxE);
 		$minE = Min((float)$json_dailyhist[$i]["EquityDelta"],$minE);
-
 		$maxG = Max((float)$json_dailyhist[$i]["GoldDelta"],$maxG);
 		$minG = Min((float)$json_dailyhist[$i]["GoldDelta"],$minG);
-
 		$maxR = Max((float)$json_dailyhist[$i]["REDelta"],$maxR);
 		$minR = Min((float)$json_dailyhist[$i]["REDelta"],$minR);
-
 		$maxT = Max((float)$json_dailyhist[$i]["TotalDelta"],$maxT);
 		$minT = Min((float)$json_dailyhist[$i]["TotalDelta"],$minT);
-
 	}
 }
 
