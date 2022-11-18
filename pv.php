@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script>
-
+<meta http-equiv="refresh" content="300">
 
 
 <!--link type='text/css' href='js/CookieCompliance/stylesheet.css' rel='stylesheet'-->
@@ -574,18 +574,19 @@ $.ajax({
                 { name:"SGLD",data: [],lineWidth: 3},
             ];
                
-            for (var i = 1; i < json.length; i++) {
-                x = json[i].EveluationTime
-                series[0].data[i-1] = [x, json[i].emi];
-                series[1].data[i-1] = [x, json[i].eni];
-                series[2].data[i-1] = [x, json[i].epra];
-                series[3].data[i-1] = [x, json[i].sw2chb];
-                series[4].data[i-1] = [x, json[i].swrd];
-                series[5].data[i-1] = [x, json[i].hys];
-                series[6].data[i-1] = [x, json[i].isp];
-                series[7].data[i-1] = [x, json[i].msft];
-                series[8].data[i-1] = [x, json[i].mwrd];
-                series[9].data[i-1] = [x, json[i].sgld];
+            for (var i = 0; i < json.length; i++) {
+                x = json[i].evaluationdatetime;
+				//alert(json[i].evaluationdatetime);
+                series[0].data[i] = [x, json[i].emi];
+                series[1].data[i] = [x, json[i].eni];
+                series[2].data[i] = [x, json[i].epra];
+                series[3].data[i] = [x, json[i].sw2chb];
+                series[4].data[i] = [x, json[i].swrd];
+                series[5].data[i] = [x, json[i].hys];
+                series[6].data[i] = [x, json[i].isp];
+                series[7].data[i] = [x, json[i].msft];
+                series[8].data[i] = [x, json[i].mwrd];
+                series[9].data[i] = [x, json[i].sgld];
             }
         var chart = new Highcharts.Chart({
         chart: {
