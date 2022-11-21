@@ -5,8 +5,10 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script>
-<meta http-equiv="refresh" content="300">
-
+<meta http-equiv="refresh" content="120">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 
 <!--link type='text/css' href='js/CookieCompliance/stylesheet.css' rel='stylesheet'-->
 <!--#include virtual="include/meta.inc" -->
@@ -77,7 +79,7 @@ $json = file_get_contents('currentPortfolio.json');
 $json_currentportfolio = json_decode($json,true);
 
 // Read the JSON file 
-$json = file_get_contents('DailyHistForAssetClass.json');
+$json = file_get_contents('dailyAssetClassData.json');
 $json_dailyhist = json_decode($json,true);
 
 
@@ -98,7 +100,7 @@ echo "<h5>" . dateFormatter($currentDate["day"],$currentDate["month"],$currentDa
 //echo "<br/>";
 //echo "<h2>Suddivione per titolo</h2>";
 echo "<div>";
-echo "<table class='table-bordered center' width='85%' >";
+echo "<table class='table-bordered center' width='98%' >";
 echo "<thead>";
 //echo "<tr class='table-warning'><th colspan='2' align='center'>Security</th><th colspan='3'>Portfolio</th><th colspan='2'>Last</th><th colspan='2'>Yesterday</th><th colspan='2'>WTD</th><th colspan='2'>MTD</th>";
 echo "<tr class='table-warning'><th colspan='4' align='center'>Security</th><th colspan='2'>Last</th><th colspan='2'>Yesterday</th><th colspan='2'>WTD</th><th colspan='2'>MTD</th>";
@@ -259,10 +261,11 @@ echo "<td align='right'>" . number_format($lastmonthtotalvar,2) .  "%</td>";
 echo "</table>";
 echo "<br>";
 
-echo "<div id='container' style='height: 600px' ></div>";
-
+echo "<div id='container' style='height: 675px' ></div>";
+echo "<br>";
 echo "<h2>Storico giornaliero per asset class</h2>";
-echo "<table class='table-bordered center' width='85%' >";
+echo "<br>";
+echo "<table class='table-bordered center' width='98%' >";
 echo "<thead>";
 echo "<tr class='table-warning text-center'><th></th><th colspan='4'>Bond</th><th colspan='4'>Equity</th><th colspan='4'>Gold</th><th colspan='4'>Real Estate</th><th colspan='4'>Totale</th></tr>";
 echo "<tr class='table-primary text-center'><th>Date-time</th><th>Amount</th><th>Delta</th><th>Var(%)</th><th>Sto(%)</th><th>Amount</th><th>Delta</th><th>Var(%)</th><th>Sto(%)</th><th>Amount</th><th>Delta</th><th>Var(%)</th><th>Sto(%)</th><th>Amount</th><th>Delta</th><th>Var(%)</th><th>Sto(%)</th><th>Amount</th><th>Delta</th><th>Var(%)</th><th>Sto(%)</th></tr>";
@@ -442,10 +445,16 @@ for ($i=count($json_dailyhist)-1; $i >= 0; $i = $i -1)
 echo "</tbody>";
 echo "</table>";
 echo "<br/>";
-echo "<h2>Storico giornaliero per titolo</h2>";
+echo "<br/>";
+echo "<h2>Grafico giornaliero per titolo - Delta</h2>";
 echo "<div id='container2' style='height: 800px' ></div>";
 
-
+echo "<br/>";
+echo "<br/>";
+echo "<h2>Grafico giornaliero per titolo - Variazione(%)</h2>";
+echo "<div id='container3' style='height: 800px' ></div>";
+echo "<br/>";
+echo "<br/>";
 
 
 ?>
@@ -454,7 +463,7 @@ echo "<div id='container2' style='height: 800px' ></div>";
 
 var series;
 $.ajax({
-	url: 'DailyHistForAssetClass.json',
+	url: 'dailyAssetClassData.json',
 	async: false,
 	dataType: "text",
 	error: function()
@@ -493,7 +502,7 @@ $.ajax({
         type: 'datetime',
 		tickInterval:  600 * 1000,
 		 labels: {
-            enabled: false
+            enabled: true
         }
     },
 	
@@ -550,44 +559,36 @@ $.ajax({
 
     var series;
     $.ajax({
-        url: 'DailyDataSecurityGraph.json',
+        url: 'dailySecurityData.json',
         async: false,
         dataType: "text",
         error: function()
         {
-            alert ("Impossibile generare il grafico");
+            alert ("Impossibile generare il grafico - Variazione");
             //window.location.replace("monitors.shtml");
         },
         success: function(data) 
         {
             var json = $.parseJSON(data);
-            series = [
-                { name:"EMI", data: [],lineWidth: 3}, 
-                { name:"ENI",data: [],lineWidth: 3},
-                { name:"EPRA",data: [],lineWidth: 3},
-                { name:"SW2CHB",data: [],lineWidth: 3},
-                { name:"SWRD",data: [],lineWidth: 3},
-                { name:"HYS",data: [],lineWidth: 3},
-                { name:"ISP",data: [],lineWidth: 3},
-                { name:"MSFT",data: [],lineWidth: 3},
-                { name:"MWRD",data: [],lineWidth: 3},
-                { name:"SGLD",data: [],lineWidth: 3},
-            ];
-               
-            for (var i = 0; i < json.length; i++) {
-                x = json[i].evaluationdatetime;
-				//alert(json[i].evaluationdatetime);
-                series[0].data[i] = [x, json[i].emi];
-                series[1].data[i] = [x, json[i].eni];
-                series[2].data[i] = [x, json[i].epra];
-                series[3].data[i] = [x, json[i].sw2chb];
-                series[4].data[i] = [x, json[i].swrd];
-                series[5].data[i] = [x, json[i].hys];
-                series[6].data[i] = [x, json[i].isp];
-                series[7].data[i] = [x, json[i].msft];
-                series[8].data[i] = [x, json[i].mwrd];
-                series[9].data[i] = [x, json[i].sgld];
-            }
+            let series = [];
+			console.log(json.length);
+			for (i=0;i<json.length;i++)
+			{
+				console.log(json[i].ticker);
+				obj = {name:json[i].ticker,data: [],lineWidth: 3};
+				series.push(obj);
+				series[i].lineWidth = 3;
+				for (var j=0; j < json[i].values.length; j++)
+                {
+					console.log(json[i].values[j].cycledatetime);
+					x = Date.parse(json[i].values[j].cycledatetime);
+                    series[i].data[j] = [x, json[i].values[j].delta];
+				}
+			}
+
+			//console.log(series[0].data);
+			
+			
         var chart = new Highcharts.Chart({
         chart: {
             renderTo: 'container2'
@@ -599,7 +600,7 @@ $.ajax({
             type: 'datetime',
             tickInterval:  600 * 1000,
              labels: {
-                enabled: false
+                enabled: true
             }
         },
         
@@ -652,6 +653,104 @@ $.ajax({
     });
     </script>
 
+
+<script type="text/javascript">
+
+    var series;
+    $.ajax({
+        url: 'dailySecurityData.json',
+        async: false,
+        dataType: "text",
+        error: function()
+        {
+            alert ("Impossibile generare il grafico - Variazione");
+            //window.location.replace("monitors.shtml");
+        },
+        success: function(data) 
+        {
+            var json = $.parseJSON(data);
+            let series = [];
+			console.log(json.length);
+			for (i=0;i<json.length;i++)
+			{
+				console.log(json[i].ticker);
+				obj = {name:json[i].ticker,data: [],lineWidth: 3};
+				series.push(obj);
+				series[i].lineWidth = 3;
+				for (var j=0; j < json[i].values.length; j++)
+                {
+					console.log(json[i].values[j].cycledatetime);
+					x = Date.parse(json[i].values[j].cycledatetime);
+                    series[i].data[j] = [x, Math.round(json[i].values[j].var*10000)/100];
+				}
+			}
+
+			//console.log(series[0].data);
+			
+			
+        var chart = new Highcharts.Chart({
+        chart: {
+            renderTo: 'container3'
+        },
+        title: {
+            text: ''
+        },
+        xAxis: {
+            type: 'datetime',
+            tickInterval:  600 * 1000,
+             labels: {
+                enabled: true
+            }
+        },
+        
+        yAxis: [{
+            plotLines: [{
+                    color: '#FF0000',
+                    width: 1,
+                    value: 0,
+                    zIndex:2}],
+                    title: {text: 'Delta'}
+                    
+                    
+        }, {
+            linkedTo: 0,
+            opposite: true,
+             title: {text: 'Delta'}
+        }],
+        
+        
+        
+        
+        /*yAxis: {
+                plotLines: [{
+                    color: '#FF0000',
+                    width: 1,
+                    value: 0,
+                    zIndex:2}]
+            },
+        */
+        
+            
+        
+         plotOptions: {
+            series: {
+                cursor: 'pointer',
+                className: 'popup-on-click',
+                marker: {
+                    lineWidth: 1,
+                    radius: 5,
+                    symbol: 'circle'
+                    
+                }
+            }
+        },
+    
+        
+        series: series
+    });
+        }
+    });
+    </script>
 
 
 </body>
