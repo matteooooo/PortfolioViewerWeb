@@ -8,6 +8,9 @@
 <!--link type='text/css' href='js/CookieCompliance/stylesheet.css' rel='stylesheet'-->
 <!--#include virtual="include/meta.inc" -->
 <meta http-equiv="refresh" content="120">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 </head>
 <body>
 <?php
@@ -71,7 +74,7 @@ echo "<tr class='table-danger'><td>Minimo</td><td></td><td></td><td align='right
 echo "<tr class='table-success'><td>Massimo</td><td></td><td></td><td align='right' class='font-weight-bold'>" . number_format((float)$max,3) . "</td><td></td><td></td><td></td><td></td></tr>";
 
 //for ($i=0; $i<count($sec["values"]);$i = $i+1)
-for ($i = count($sec["values"])-1; $i>0 ; $i = $i-1)
+for ($i = count($sec["values"])-1; $i>=0 ; $i = $i-1)
 
 
 {
@@ -223,18 +226,22 @@ $.ajax({
                     x = Date.parse(json[i].values[j].cycledatetime);
 			        if (json[i].bidprice == 0 )
                     {
-                        series[0].data[j] = [x, json[i].values[j].lastPrice];
+                        series[0].data[j] = [x, json[i].values[j].lastprice];
                     }
                     else
                     {
                         series[0].data[j] = [x, json[i].values[j].bidprice];
                     }
+
+
+
+
                     //document.write(json[i].values[j].cycledatetime);
                     //document.write(json[i].values[j].delta);
                 }
             }
         }
-        console.log(series[0].data);
+        
         var chart = new Highcharts.Chart({
     chart: {
         renderTo: 'container2'

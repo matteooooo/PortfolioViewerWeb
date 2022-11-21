@@ -6,7 +6,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script>
 <meta http-equiv="refresh" content="120">
-
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 
 <!--link type='text/css' href='js/CookieCompliance/stylesheet.css' rel='stylesheet'-->
 <!--#include virtual="include/meta.inc" -->
@@ -679,7 +681,7 @@ $.ajax({
                 {
 					console.log(json[i].values[j].cycledatetime);
 					x = Date.parse(json[i].values[j].cycledatetime);
-                    series[i].data[j] = [x, json[i].values[j].var*100];
+                    series[i].data[j] = [x, Math.round(json[i].values[j].var*10000)/100];
 				}
 			}
 
